@@ -11,9 +11,14 @@ import { fileURLToPath } from "url"; //for config directories
 
 /*CONTROLLERS*/
 import { register } from "./controllers/auth.js";
+import { createPost } from "./controllers/posts.js";
 
 /*ROUTES*/
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
+import { verifyToken } from "./middleware/auth.js";
+
 
 /* CONFIGURATION */
 const __filename = fileURLToPath(import.meta.url);
@@ -52,13 +57,19 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* ROUTES WITH FILES */
-//Logic for register one user, before register that user save de picture that user send at the storage made with multer
+//Logic for register one user, before register that user save the picture that user send at the storage made with multer
 //Call the /auth/register to do it in the backend
-app.post("/auth/register", upload.single("picture"), register);
+app.post("/auth/register", upload.single("picture"), register); 
+//Permit the user public a post with a image that will go to storage
+app.post("/posts", verifyToken, upload.single("picture"), createPost);
+
 
 /*ROUTES*/
-//For auth of users and login.
+//For auth of users, posts and login.
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/posts", postRoutes);
+
 
 
 /* MONGOOSE SETUP */
